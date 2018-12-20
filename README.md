@@ -4,6 +4,7 @@
 ## 特性
 ---
 - [x] 一个可执行文件, miniblink的dll被嵌入库中
+- [x] 生成的可执行文件灰常小,15M左右,upx后 12M左右
 - [x] 支持无缝golang和浏览器页面js的交互 (Date类型都做了处理), 并支持异步调用golang中的方法(Promise), 支持异常获取.
 - [x] 嵌入开发者工具(bdebug构建tags开启)
 - [x] 支持虚拟文件系统, 基于golang的http.FileSystem, 以为着go-bindata出的资源可以直接嵌入程序, 无需开启额外的http服务
@@ -95,6 +96,9 @@ value.ToXXX // -> Time(golang类型)
 value, err := view.Invoke("Bar", "blink")
 value.ToString() // -> "hello blink"
 ```
+## 注意
+- 网页调试工具默认不打包进可执行文件,请启用bdebug Build Tag
+- 使用本库需依赖cgo编译环境(mingw32)
 
 ## ...
 再次感谢miniblink项目, 另外如果觉得本项目好用请点个星.  
