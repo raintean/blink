@@ -8,4 +8,4 @@ cd ${SCRIPT}
 ROOT=`pwd`
 DIST=${ROOT}/example.exe
 
-CGO_ENABLED=1 go build -tags debug -ldflags="-H=windowsgui" -o ${DIST} blink/example/cmd
+CGO_ENABLED=1 go build -tags bdebug -ldflags="-H=windowsgui" -o ${DIST} blink/example/cmd

@@ -98,7 +98,7 @@ func NewWebView(isTransparent bool, bounds ...int) *WebView {
 
 func (view WebView) processMessage(msg *win.MSG) bool {
 	//TODO:临时监听一波键盘事件,并直接处理了,以后要分发到标准的事件中去的
-	if DebugMode {
+	if isDebug {
 		if msg.Message == win.WM_KEYDOWN {
 			switch msg.WParam {
 			case 0x74: //F5

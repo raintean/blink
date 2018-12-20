@@ -11,16 +11,14 @@ import (
 	"unsafe"
 )
 
-type NetFS http.FileSystem
+var netFileSystems = make(map[string]http.FileSystem)
 
-var netfses = make(map[string]NetFS)
-
-func RegisterFileSystem(domain string, fs NetFS) {
-	netfses[domain] = fs
+func RegisterFileSystem(domain string, fs http.FileSystem) {
+	netFileSystems[domain] = fs
 }
 
 func UnregisterFileSystem(domain string) {
-	delete(netfses, domain)
+	delete(netFileSystems, domain)
 }
 
 //export goGetNetFSData
@@ -38,7 +36,7 @@ func goGetNetFSData(window C.wkeWebView, url *C.char) (result C.int, mimeType *C
 	}
 
 	//响应指定的域名
-	if fs, isExist := netfses[u.Host]; isExist {
+	if fs, isExist := netFileSystems[u.Host]; isExist {
 		//获取文件
 		f, err := fs.Open(u.Path)
 		if err != nil {

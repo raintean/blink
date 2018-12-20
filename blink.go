@@ -94,5 +94,7 @@ func InitBlink() error {
 		}
 	}()
 
+	logger.Println("blink初始化完毕")
+
 	return nil
 }

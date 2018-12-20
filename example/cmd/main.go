@@ -6,6 +6,9 @@ import (
 )
 
 func main() {
+	//设置调试模式
+	blink.SetDebugMode(true)
+
 	//初始化blink模块
 	err := blink.InitBlink()
 	if err != nil {
