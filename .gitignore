@@ -1,0 +1,16 @@
+# idea
+/.idea
+
+# golang
+vendor
+go.sum
+
+# bin data
+*bin.go
+
+# execute
+example.exe
+
+# other
+LocalStorage/
+blink/.vscode/
