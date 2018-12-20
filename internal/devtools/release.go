@@ -3,7 +3,7 @@
 // devtools/inspector.html
 // DO NOT EDIT!
 
-// +build !debug
+// +build !bdebug
 
 package devtools
 
