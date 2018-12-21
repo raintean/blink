@@ -1,7 +1,7 @@
 package main
 
 import (
-	"blink"
+	"github.com/raintean/blink"
 	"log"
 )
 

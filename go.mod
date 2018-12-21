@@ -1,4 +1,4 @@
-module blink
+module github.com/raintean/blink
 
 require (
 	github.com/CHH/eventemitter v0.0.0-20120807115904-3e42a20a6810

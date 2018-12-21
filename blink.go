@@ -4,11 +4,11 @@ package blink
 import "C"
 
 import (
-	"blink/internal/devtools"
-	"blink/internal/dll"
 	"fmt"
 	"github.com/elazarl/go-bindata-assetfs"
 	"github.com/lxn/win"
+	"github.com/raintean/blink/internal/devtools"
+	"github.com/raintean/blink/internal/dll"
 	"os"
 	"path/filepath"
 	"runtime"
