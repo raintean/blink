@@ -1,6 +1,9 @@
 # blink
 使用html来编写golang的GUI程序(only windows), 基于[miniblink开源库](https://github.com/weolar/miniblink49)  
 
+## Demo
+[Demo项目地址](https://github.com/raintean/blink-demo)
+
 ## 特性
 ---
 - [x] 一个可执行文件, miniblink的dll被嵌入库中
