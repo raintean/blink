@@ -10,7 +10,7 @@
 - [x] 生成的可执行文件灰常小,15M左右,upx后 12M左右
 - [x] 支持无缝golang和浏览器页面js的交互 (Date类型都做了处理), 并支持异步调用golang中的方法(Promise), 支持异常获取.
 - [x] 嵌入开发者工具(bdebug构建tags开启)
-- [x] 支持虚拟文件系统, 基于golang的http.FileSystem, 以为着go-bindata出的资源可以直接嵌入程序, 无需开启额外的http服务
+- [x] 支持虚拟文件系统, 基于golang的http.FileSystem, 意味着go-bindata出的资源可以直接嵌入程序, 无需开启额外的http服务
 - [x] 添加了部分简单的接口(最大化,最小化,无任务栏图标等)
 - [ ] golang调用js方法时的异步.
 - [ ] dll的内存加载, 尝试过基于MemoryModule的方案, 没有成功, 目前是释放dll到临时目录, 再加载.
