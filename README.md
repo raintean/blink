@@ -100,7 +100,7 @@ value, err := view.Invoke("Bar", "blink")
 value.ToString() // -> "hello blink"
 ```
 ## 注意
-- 网页调试工具默认不打包进可执行文件,请启用bdebug Build Tag
+- 网页调试工具默认不打包进可执行文件,请启用BuildTags **bdebug**, eg. `go build -tags bdebug`
 - 使用本库需依赖cgo编译环境(mingw32)
 
 ## ...
