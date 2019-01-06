@@ -141,6 +141,12 @@ func init() {
 
 //export goInvokeDispatcher
 func goInvokeDispatcher(window C.wkeWebView, callback C.jsValue, invocationString *C.char) {
+	//获取调用的基本信息
+	//对invocationString的取值放在go func的外部,因为go func是异步的
+	//防止方法返回后MB回收这个字符串内存
+	invocationJson := jsoniter.Get([]byte(invocationString))
+	methodName := invocationJson.Get("MethodName").ToString()
+
 	go func() (returnValue []interface{}, err error) {
 		//defer函数,用于处理返回值
 		defer func() {
@@ -176,10 +182,6 @@ func goInvokeDispatcher(window C.wkeWebView, callback C.jsValue, invocationStrin
 				}
 			}
 		}()
-
-		//获取调用的基本信息
-		invocationJson := jsoniter.Get([]byte(C.GoString(invocationString)))
-		methodName := invocationJson.Get("MethodName").ToString()
 
 		//拿到对应的view
 		view := getWebViewByWindow(window)
