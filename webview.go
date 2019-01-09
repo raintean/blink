@@ -14,8 +14,9 @@ type WebView struct {
 	window C.wkeWebView
 	handle win.HWND
 
-	jsFunc map[string]interface{}
-	jsData map[string]string
+	autoTitle bool
+	jsFunc    map[string]interface{}
+	jsData    map[string]string
 
 	//事件channels
 	DocumentReady chan interface{} //文档ready
@@ -26,6 +27,7 @@ type WebView struct {
 
 func NewWebView(isTransparent bool, bounds ...int) *WebView {
 	view := &WebView{
+		autoTitle:     true,
 		jsFunc:        make(map[string]interface{}),
 		jsData:        make(map[string]string),
 		DocumentReady: make(chan interface{}),
@@ -75,10 +77,18 @@ func NewWebView(isTransparent bool, bounds ...int) *WebView {
 			close(v.DocumentReady)
 		}
 	})
+	//同步网页标题到窗口
+	view.On("titleChanged", func(view *WebView, title string) {
+		if view.autoTitle {
+			view.SetWindowTitle(title)
+		}
+	})
 
 	//注入预置的API给js调用
 	view.Inject("MoveToCenter", view.MoveToCenter)
 	view.Inject("SetWindowTitle", view.SetWindowTitle)
+	view.Inject("EnableAutoTitle", view.EnableAutoTitle)
+	view.Inject("DisableAutoTitle", view.DisableAutoTitle)
 	view.Inject("ShowDockIcon", view.ShowDockIcon)
 	view.Inject("HideDockIcon", view.HideDockIcon)
 	view.Inject("ShowWindow", view.ShowWindow)
@@ -96,7 +106,7 @@ func NewWebView(isTransparent bool, bounds ...int) *WebView {
 	return view
 }
 
-func (view WebView) processMessage(msg *win.MSG) bool {
+func (view *WebView) processMessage(msg *win.MSG) bool {
 	//TODO:临时监听一波键盘事件,并直接处理了,以后要分发到标准的事件中去的
 	if isDebug {
 		if msg.Message == win.WM_KEYDOWN {
@@ -114,7 +124,7 @@ func (view WebView) processMessage(msg *win.MSG) bool {
 	return true
 }
 
-func (view WebView) MoveToCenter() {
+func (view *WebView) MoveToCenter() {
 	var width int32 = 0
 	var height int32 = 0
 	{
@@ -143,7 +153,7 @@ func (view WebView) MoveToCenter() {
 	win.MoveWindow(view.handle, x, y, width, height, false)
 }
 
-func (view WebView) SetWindowTitle(title string) {
+func (view *WebView) SetWindowTitle(title string) {
 	done := make(chan bool)
 	jobQueue <- func() {
 		C.setWindowTitle(view.window, C.CString(title))
@@ -152,7 +162,16 @@ func (view WebView) SetWindowTitle(title string) {
 	<-done
 }
 
-func (view WebView) GetWebTitle() string {
+func (view *WebView) EnableAutoTitle() {
+	view.autoTitle = true
+	view.SetWindowTitle(view.GetWebTitle())
+}
+
+func (view *WebView) DisableAutoTitle() {
+	view.autoTitle = false
+}
+
+func (view *WebView) GetWebTitle() string {
 	//等待document ready,文档没有ready,网页的标题获取不到
 	<-view.DocumentReady
 
@@ -164,7 +183,7 @@ func (view WebView) GetWebTitle() string {
 	return <-done
 }
 
-func (view WebView) LoadURL(url string) {
+func (view *WebView) LoadURL(url string) {
 	done := make(chan bool)
 	jobQueue <- func() {
 		C.loadURL(view.window, C.CString(url))
@@ -173,36 +192,36 @@ func (view WebView) LoadURL(url string) {
 	<-done
 }
 
-func (view WebView) ShowCaption() {
+func (view *WebView) ShowCaption() {
 	style := win.GetWindowLongPtr(view.handle, win.GWL_STYLE)
 	win.SetWindowLongPtr(view.handle, win.GWL_STYLE, style|win.WS_CAPTION|win.WS_SYSMENU|win.WS_SIZEBOX)
 }
 
-func (view WebView) HideCaption() {
+func (view *WebView) HideCaption() {
 	style := win.GetWindowLongPtr(view.handle, win.GWL_STYLE)
 	win.SetWindowLongPtr(view.handle, win.GWL_STYLE, style&^win.WS_CAPTION&^win.WS_SYSMENU&^win.WS_SIZEBOX)
 }
 
-func (view WebView) ShowDockIcon() {
+func (view *WebView) ShowDockIcon() {
 	style := win.GetWindowLong(view.handle, win.GWL_EXSTYLE)
 	win.SetWindowLong(view.handle, win.GWL_EXSTYLE, style&^win.WS_EX_TOOLWINDOW)
 }
 
-func (view WebView) HideDockIcon() {
+func (view *WebView) HideDockIcon() {
 	style := win.GetWindowLong(view.handle, win.GWL_EXSTYLE)
 	win.SetWindowLong(view.handle, win.GWL_EXSTYLE, style|win.WS_EX_TOOLWINDOW)
 
 }
 
-func (view WebView) ShowWindow() {
+func (view *WebView) ShowWindow() {
 	win.ShowWindow(view.handle, win.SW_SHOW)
 }
 
-func (view WebView) HideWindow() {
+func (view *WebView) HideWindow() {
 	win.ShowWindow(view.handle, win.SW_HIDE)
 }
 
-func (view WebView) ShowDevTools() {
+func (view *WebView) ShowDevTools() {
 	done := make(chan bool)
 	jobQueue <- func() {
 		C.showDevTools(view.window)
@@ -211,7 +230,7 @@ func (view WebView) ShowDevTools() {
 	<-done
 }
 
-func (view WebView) Reload() {
+func (view *WebView) Reload() {
 	done := make(chan bool)
 	jobQueue <- func() {
 		C.reloadURL(view.window)
@@ -220,13 +239,13 @@ func (view WebView) Reload() {
 	<-done
 }
 
-func (view WebView) ToTop() {
+func (view *WebView) ToTop() {
 	rect := &win.RECT{}
 	win.GetWindowRect(view.handle, rect)
 	win.SetWindowPos(view.handle, win.HWND_TOP, rect.Left, rect.Top, rect.Right-rect.Left, rect.Bottom-rect.Top, 0)
 }
 
-func (view WebView) MostTop(isTop bool) {
+func (view *WebView) MostTop(isTop bool) {
 	rect := &win.RECT{}
 	win.GetWindowRect(view.handle, rect)
 	if isTop {
@@ -236,19 +255,19 @@ func (view WebView) MostTop(isTop bool) {
 	}
 }
 
-func (view WebView) MaximizeWindow() {
+func (view *WebView) MaximizeWindow() {
 	win.ShowWindow(view.handle, win.SW_MAXIMIZE)
 }
 
-func (view WebView) MinimizeWindow() {
+func (view *WebView) MinimizeWindow() {
 	win.ShowWindow(view.handle, win.SW_MINIMIZE)
 }
 
-func (view WebView) RestoreWindow() {
+func (view *WebView) RestoreWindow() {
 	win.ShowWindow(view.handle, win.SW_RESTORE)
 }
 
-func (view WebView) DestroyWindow() {
+func (view *WebView) DestroyWindow() {
 	if !view.IsDestroy {
 		done := make(chan bool)
 		jobQueue <- func() {

@@ -285,7 +285,7 @@ func goGetInteropJS(window C.wkeWebView) *C.char {
 }
 
 //注入一个方法或者数据
-func (view WebView) Inject(key string, value interface{}) {
+func (view *WebView) Inject(key string, value interface{}) {
 	t := reflect.TypeOf(value)
 	if t.Kind() == reflect.Invalid || t.Kind() == reflect.Chan || t.Kind() == reflect.UnsafePointer {
 		logger.Println("注入错误,不支持类型:", t.Kind())
@@ -312,7 +312,7 @@ func (view WebView) Inject(key string, value interface{}) {
 }
 
 //调用js中方法 or 获取js中的值
-func (view WebView) Invoke(path string, args ...interface{}) (returnValue jsoniter.Any, err error) {
+func (view *WebView) Invoke(path string, args ...interface{}) (returnValue jsoniter.Any, err error) {
 	if view.IsDestroy {
 		return nil, errors.New("WebView已经被销毁")
 	}
