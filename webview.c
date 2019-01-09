@@ -35,6 +35,11 @@ void setWindowTitle(wkeWebView window, char *title)
     free(title);
 }
 
+const char *getWebTitle(wkeWebView window)
+{
+    return wkeGetTitle(window);
+}
+
 void destroyWindow(wkeWebView window)
 {
     wkeDestroyWebWindow(window);

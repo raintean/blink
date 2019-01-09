@@ -152,6 +152,18 @@ func (view WebView) SetWindowTitle(title string) {
 	<-done
 }
 
+func (view WebView) GetWebTitle() string {
+	//等待document ready,文档没有ready,网页的标题获取不到
+	<-view.DocumentReady
+
+	done := make(chan string)
+	jobQueue <- func() {
+		done <- C.GoString(C.getWebTitle(view.window))
+		close(done)
+	}
+	return <-done
+}
+
 func (view WebView) LoadURL(url string) {
 	done := make(chan bool)
 	jobQueue <- func() {

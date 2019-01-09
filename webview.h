@@ -16,6 +16,7 @@ HWND getWindowHandle(wkeWebView window);
 void loadURL(wkeWebView window, char *url);
 void reloadURL(wkeWebView window);
 void setWindowTitle(wkeWebView window, char *title);
+const char *getWebTitle(wkeWebView window);
 void destroyWindow(wkeWebView window);
 void showDevTools(wkeWebView window);
 
