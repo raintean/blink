@@ -28,5 +28,7 @@ char *goGetInteropJS(wkeWebView window);
 void goOnWindowDestroyCallback(wkeWebView window, void *param);
 //document ready回调
 void goOnDocumentReadyCallback(wkeWebView window);
+//title changed回调
+void goOnTitleChangedCallback(wkeWebView window, const utf8 *title);
 /*****************event end**************/
 #endif

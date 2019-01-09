@@ -21,3 +21,14 @@ func goOnDocumentReadyCallback(window C.wkeWebView) {
 		view.Emit("documentReady", view)
 	}()
 }
+
+//export goOnTitleChangedCallback
+func goOnTitleChangedCallback(window C.wkeWebView, titleString *C.char) {
+	//把C过来的字符串转化为golang的
+	titleGoString := C.GoString(titleString)
+
+	go func() {
+		view := getWebViewByWindow(window)
+		view.Emit("titleChanged", view, titleGoString)
+	}()
+}
