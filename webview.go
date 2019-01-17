@@ -3,9 +3,13 @@ package blink
 //#include "webview.h"
 import "C"
 import (
+	"os"
+	"path/filepath"
+	"syscall"
+	"unsafe"
+
 	"github.com/CHH/eventemitter"
 	"github.com/lxn/win"
-	"unsafe"
 )
 
 type WebView struct {
@@ -284,4 +288,40 @@ func (view *WebView) DestroyWindow() {
 		}
 		<-done
 	}
+}
+
+func (view *WebView) SetWindowIcon(s string) {
+	done := make(chan bool)
+	jobQueue <- func() {
+		defer close(done)
+
+		buff, err := GetNetFSData(s)
+		if err != nil {
+			logger.Println(err)
+			return
+		}
+		icoPath := filepath.Join(TempPath, "app.icon")
+		fd, err := os.OpenFile(icoPath, os.O_RDWR|os.O_CREATE, 0755)
+		if err != nil {
+			logger.Printf("读取资源(%s)失败：%s\n", s, err.Error())
+			return
+		}
+		fd.Write(buff)
+		fd.Close()
+
+		hIcon := win.HICON(win.LoadImage(
+			0,
+			syscall.StringToUTF16Ptr(icoPath),
+			win.IMAGE_ICON,
+			0,
+			0,
+			win.LR_DEFAULTSIZE|win.LR_LOADFROMFILE))
+		if hIcon != 0 {
+			win.SendMessage(view.handle, win.WM_SETICON, 0, uintptr(hIcon))
+			win.SendMessage(view.handle, win.WM_SETICON, 1, uintptr(hIcon))
+		} else {
+			logger.Printf("装载资源(%s)失败！\n", s)
+		}
+	}
+	<-done
 }
