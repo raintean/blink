@@ -27,6 +27,8 @@ type WebView struct {
 	Destroy       chan interface{} //webview销毁
 
 	IsDestroy bool
+
+	dropFiles bool
 }
 
 func NewWebView(isTransparent bool, bounds ...int) *WebView {
@@ -37,6 +39,7 @@ func NewWebView(isTransparent bool, bounds ...int) *WebView {
 		DocumentReady: make(chan interface{}),
 		Destroy:       make(chan interface{}),
 		IsDestroy:     false,
+		dropFiles:     true,
 	}
 	//初始化event emitter
 	view.Init()
@@ -122,10 +125,36 @@ func (view *WebView) processMessage(msg *win.MSG) bool {
 				go view.ShowDevTools()
 				break
 			}
+		} else if msg.Message == win.WM_DROPFILES {
+			if view.dropFiles {
+				return view.processDropFiles(win.HDROP(msg.WParam))
+			} else {
+				return false
+			}
 		}
 	}
 
 	return true
+}
+
+func (view *WebView) processDropFiles(hDrop win.HDROP) bool {
+	var files []string
+	n := win.DragQueryFile(hDrop, 0xFFFFFFFF, nil, 0)
+	for i := 0; i < int(n); i++ {
+		bufSize := uint(512)
+		buf := make([]uint16, bufSize)
+		if win.DragQueryFile(hDrop, uint(i), &buf[0], bufSize) > 0 {
+			files = append(files, syscall.UTF16ToString(buf))
+		}
+	}
+	win.DragFinish(hDrop)
+
+	if len(files) > 0 {
+		//如果事件不存在，并且dropFiles为true，则交给mb处理
+		return view.Emit("dropFiles", view, files) == nil
+	} else {
+		return true
+	}
 }
 
 func (view *WebView) MoveToCenter() {
@@ -290,6 +319,10 @@ func (view *WebView) DestroyWindow() {
 	}
 }
 
+func (view *WebView) GetHandle() win.HWND {
+	return view.handle
+}
+
 func (view *WebView) SetWindowIcon(s string) {
 	done := make(chan bool)
 	jobQueue <- func() {
@@ -324,4 +357,9 @@ func (view *WebView) SetWindowIcon(s string) {
 		}
 	}
 	<-done
+}
+
+func (view *WebView) SetEnabledDropFiles(value bool) {
+	view.dropFiles = value
+	win.DragAcceptFiles(view.GetHandle(), value)
 }
