@@ -30,3 +30,8 @@ func SetDebugMode(debug bool) {
 	isDebug = debug
 	logger.SetOutput(writer(debug))
 }
+
+//设置临时目录
+func SetTempPath(path string) {
+	TempPath = path
+}
