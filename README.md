@@ -29,7 +29,7 @@ go get github.com/raintean/blink
 package main
 
 import (
-	"blink"
+	"github.com/raintean/blink"
 	"github.com/elazarl/go-bindata-assetfs"
 	"log"
 )
