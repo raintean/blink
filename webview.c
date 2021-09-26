@@ -23,6 +23,16 @@ void loadURL(wkeWebView window, char *url)
     wkeLoadURL(window, url);
     free(url);
 }
+void loadHtml(wkeWebView window, char *url)
+{
+    wkeLoadHTML(window, url);
+    free(url);
+}
+void loadFile(wkeWebView window, char *url)
+{
+    wkeLoadFile(window, url);
+    free(url);
+}
 
 void reloadURL(wkeWebView window)
 {

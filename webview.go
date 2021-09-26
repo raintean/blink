@@ -191,6 +191,23 @@ func (view *WebView) LoadURL(url string) {
 	}
 	<-done
 }
+func (view *WebView) LoadHtml(url string) {
+	done := make(chan bool)
+	jobQueue <- func() {
+		C.loadHtml(view.window, C.CString(url))
+		close(done)
+	}
+	<-done
+}
+
+func (view *WebView) LoadFile(url string) {
+	done := make(chan bool)
+	jobQueue <- func() {
+		C.loadFile(view.window, C.CString(url))
+		close(done)
+	}
+	<-done
+}
 
 func (view *WebView) ShowCaption() {
 	style := win.GetWindowLongPtr(view.handle, win.GWL_STYLE)
