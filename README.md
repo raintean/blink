@@ -54,15 +54,13 @@ func main() {
 	//新建view,加载URL
 	view := blink.NewWebView(false, 1366, 920)
 	//直接加载虚拟文件系统中的网页
-	//view.LoadHtml("<h1>hello</h1>")
-	//view.LoadFile("hello.html")
 	view.LoadURL("http://app/index.html")
 	view.SetWindowTitle("Golang GUI Application")
 	view.MoveToCenter()
 	view.ShowWindow()
 	view.ShowDevTools()
 
-	<-view.Destroy
+	<-make(chan bool)
 	
 }
 ```
